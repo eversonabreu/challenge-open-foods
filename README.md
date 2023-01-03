@@ -27,4 +27,4 @@ No banco de dados, deve ser executado script:
 Caso deseje alterar a expressão "cron" da importação de produtos, altere a constante "cron" no arquivo \Coodesh.Challenge.API\Jobs\ImporterProductsJob.cs
 (Deixei por padrão, a execução diária sempre a 1 hora da manhã)
 
-A aplicação está configurada para rodar Docker, basta utilizar .\Coodesh.Challenge.API\Dockerfile
+A aplicação está configurada para rodar em Docker, basta utilizar .\Coodesh.Challenge.API\Dockerfile
