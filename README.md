@@ -3,8 +3,6 @@
 Este projeto é uma implementação do desafio proposto em:
 git@lab.coodesh.com/challenge-20220626.git  (This is a challenge by Coodesh)
 
-Iniciei o projeto utilizando MongoDB (inclusive criei uma conta no Atlas, mas me deparei com algumas dificuldades e achei melhor utilizar o SqlServer).
-
 Para executar a aplicação é necessário apontar para uma base de dados SqlServer.
 Deve ser alterado a string de conexão do banco de dados nos arquivos:
 
