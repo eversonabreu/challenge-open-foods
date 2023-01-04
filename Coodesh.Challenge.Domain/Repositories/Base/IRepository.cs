@@ -9,7 +9,7 @@ public interface IRepository<TEntity> where TEntity : Entity
 
     public Task<List<TEntity>> GetByFilterAsync(Expression<Func<TEntity, bool>> expression);
 
-    public Task<List<TEntity>> GetByFilterAsync(Expression<Func<TEntity, bool>> expression, int take, int startPage = 0);
+    public Task<List<TEntity>> GetByFilterAsync(Expression<Func<TEntity, bool>> expression, int take = 100, int startPage = 0);
 
     public Task<TEntity> SingleOrDefaultAsync(Expression<Func<TEntity, bool>> expression);
 

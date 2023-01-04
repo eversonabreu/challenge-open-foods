@@ -8,25 +8,19 @@ namespace Coodesh.Challenge.Domain.Services.Implementations;
 
 public class ProductService : IProductService
 {
-    public IProductRepository ProductRepository { get; }
-    public IConfiguration Configuration { get; }
+    private readonly IProductRepository productRepository;
+    private readonly IConfiguration configuration;
 
     public ProductService(IProductRepository productRepository,
         IConfiguration configuration)
     {
-        ProductRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
-        Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-    }
-
-    public virtual async Task<List<Product>> GetProductsInDraftAsync()
-    {
-        var products = await ProductRepository.GetByFilterAsync(x => x.Status == Enums.ProductStatus.Draft, 100);
-        return products;
+        this.productRepository = productRepository;
+        this.configuration = configuration;
     }
 
     public async Task ScrapingAndUpdateAsync()
     {
-        var products = await GetProductsInDraftAsync();
+        var products = await productRepository.GetByFilterAsync(x => x.Status == Enums.ProductStatus.Draft);
 
         if (products.Count == 0)
         {
@@ -35,7 +29,7 @@ public class ProductService : IProductService
 
         foreach (var product in products)
         {
-            var urlSite = string.Format(Configuration.GetSection("UrlSite").Value, product.Code);
+            var urlSite = string.Format(configuration.GetSection("UrlSite").Value, product.Code);
             var htmlDocument = GetHtmlDocument(urlSite);
 
             if (htmlDocument is null)
@@ -54,11 +48,11 @@ public class ProductService : IProductService
             product.Categories = GetElementByIdOrDefault("field_categories_value", htmlDocument);
             product.ImageURL = GetImageOrDefault(htmlDocument);
 
-            ProductRepository.Update(product);
+            productRepository.Update(product);
 
         }
 
-        await ProductRepository.CommitAsync();
+        await productRepository.CommitAsync();
     }
 
     private static HtmlDocument GetHtmlDocument(string urlSite)
@@ -125,7 +119,7 @@ public class ProductService : IProductService
 
     public async Task<Product> AddAsync(Product product)
     {
-        var exists = await ProductRepository.SingleOrDefaultAsync(x => x.Code == product.Code);
+        var exists = await productRepository.SingleOrDefaultAsync(x => x.Code == product.Code);
 
         if (exists != null)
         {
@@ -133,24 +127,24 @@ public class ProductService : IProductService
         }
 
         product.Status = Enums.ProductStatus.Draft;
-        var result = await ProductRepository.AddAsync(product);
-        await ProductRepository.CommitAsync();
+        var result = await productRepository.AddAsync(product);
+        await productRepository.CommitAsync();
         return result;
     }
 
     public async Task SetDraftAsync(Guid productId)
     {
-        var product = await ProductRepository.GetByIdAsync(productId);
+        var product = await productRepository.GetByIdAsync(productId);
         product.Status = Enums.ProductStatus.Draft;
-        ProductRepository.Update(product);
-        await ProductRepository.CommitAsync();
+        productRepository.Update(product);
+        await productRepository.CommitAsync();
     }
 
-    public async Task<Product> GetProductAsync(long code) => await ProductRepository.SingleOrDefaultAsync(x => x.Code == code);
+    public async Task<Product> GetProductAsync(long code) => await productRepository.SingleOrDefaultAsync(x => x.Code == code);
 
     public async Task<IEnumerable<Product>> GetProductsAsync(int take, int startPage)
     {
-        var products = await ProductRepository.GetByFilterAsync(x => true, take, startPage);
+        var products = await productRepository.GetByFilterAsync(x => true, take, startPage);
         products = products.OrderBy(x => x.Name).ToList();
         return products;
     }

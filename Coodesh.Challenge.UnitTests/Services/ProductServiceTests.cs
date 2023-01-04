@@ -20,28 +20,35 @@ public sealed class ProductServiceTests
     }
 
     [Fact]
-    public async Task Correct_Execution_ScrapingAndUpdateAsync()
+    public async Task ScrapingAndUpdateAsyncCorrect_Execution()
     {
-        productServiceSubstitute.GetProductsInDraftAsync()
-            .Returns(new List<Product>
-            {
-                new Product
+        //arrange
+
+        productRepositorySubstitute.GetByFilterAsync(x => x.Status == Domain.Enums.ProductStatus.Draft)
+            .ReturnsForAnyArgs(
+                new List<Product>
                 {
-                    Id = Guid.NewGuid(),
-                    Code = 7622210449283,
-                    Status = Domain.Enums.ProductStatus.Draft
-                },
-                new Product
-                {
-                    Id = Guid.NewGuid(),
-                    Code = 5449000000996,
-                    Status = Domain.Enums.ProductStatus.Draft
-                }
-            });
+                    new Product
+                    {
+                        Id = Guid.NewGuid(),
+                        Code = 7622210449283,
+                        Status = Domain.Enums.ProductStatus.Draft
+                    },
+                    new Product
+                    {
+                        Id = Guid.NewGuid(),
+                        Code = 5449000000996,
+                        Status = Domain.Enums.ProductStatus.Draft
+                    }
+                });
 
         configurationSubstitute.GetSection("UrlSite").Value.Returns("https://world.openfoodfacts.org/product/{0}");
         
+        // actual
+
         await productServiceSubstitute.ScrapingAndUpdateAsync();
+
+        // assert
 
         //test for two calls (return two products)
         productRepositorySubstitute.Received(2).Update(Arg.Any<Product>());
@@ -51,12 +58,18 @@ public sealed class ProductServiceTests
     }
 
     [Fact]
-    public async Task Not_Received_CommitAsync_When_Not_Found_Products_In_Draft_ScrapingAndUpdateAsync()
+    public async Task ScrapingAndUpdateAsync_Not_Received_CommitAsync_When_Not_Found_Products_In_Draft()
     {
-        productServiceSubstitute.GetProductsInDraftAsync()
-            .Returns(new List<Product>());
+        //arrange
+
+        productRepositorySubstitute.GetByFilterAsync(x => x.Status == Domain.Enums.ProductStatus.Draft)
+            .ReturnsForAnyArgs(Enumerable.Empty<Product>().ToList());
+
+        // actual
 
         await productServiceSubstitute.ScrapingAndUpdateAsync();
+
+        // assert
 
         //test not the call 'CommitAsync'
         await productRepositorySubstitute.DidNotReceive().CommitAsync();

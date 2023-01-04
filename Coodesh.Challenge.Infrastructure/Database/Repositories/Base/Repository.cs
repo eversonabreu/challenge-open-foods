@@ -48,7 +48,7 @@ internal class Repository<TEntity> : IRepository<TEntity> where TEntity : Entity
         return entities;
     }
 
-    public async Task<List<TEntity>> GetByFilterAsync(Expression<Func<TEntity, bool>> expression, int take, int startPage = 0)
+    public async Task<List<TEntity>> GetByFilterAsync(Expression<Func<TEntity, bool>> expression, int take = 100, int startPage = 0)
     {
         var entities = dbSet.Where(expression);
 

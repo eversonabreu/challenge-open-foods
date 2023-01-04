@@ -13,6 +13,4 @@ public interface IProductService
     public Task<Product> GetProductAsync(long code);
 
     public Task<IEnumerable<Product>> GetProductsAsync(int take, int startPage);
-
-    public Task<List<Product>> GetProductsInDraftAsync();
 }
