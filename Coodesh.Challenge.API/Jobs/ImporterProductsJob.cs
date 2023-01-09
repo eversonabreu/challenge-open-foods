@@ -1,51 +1,19 @@
-﻿using Coodesh.Challenge.Domain.Services.Contracts;
-using NCrontab;
+﻿using Coodesh.Challenge.API.Jobs.Base;
+using Coodesh.Challenge.Domain.Services.Contracts;
 
 namespace Coodesh.Challenge.API.Jobs;
 
-public sealed class ImporterProductsJob : BackgroundService
+internal sealed class ImporterProductsJob : BackgroundJob
 {
-    private const string cron = "* 0 1 * * *"; //everyday 1 at morning
-    private readonly CrontabSchedule crontabSchedule;
-    private readonly IServiceProvider serviceProvider;
-    private readonly ILogger<ImporterProductsJob> logger;
+    //everyday 1 at morning
+    private const string cronExpression = "* 0 1 * * *";
 
-    public ImporterProductsJob(IServiceProvider serviceProvider, 
-        ILogger<ImporterProductsJob> logger)
+    public ImporterProductsJob(IServiceProvider serviceProvider)
+        : base(cronExpression, nameof(ImporterProductsJob), serviceProvider) { }
+
+    protected override async Task RunAsync(IServiceProvider serviceProvider)
     {
-        this.serviceProvider = serviceProvider;
-        crontabSchedule = CrontabSchedule.Parse(cron, new CrontabSchedule.ParseOptions { IncludingSeconds = true });
-        this.logger = logger;
-    }
-
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-    {
-        while (true)
-        {
-            var nextRun = crontabSchedule.GetNextOccurrence(DateTime.Now);
-            var diffTime = nextRun.Subtract(DateTime.Now);
-            await Task.Delay(diffTime, stoppingToken);
-
-            if (stoppingToken.IsCancellationRequested)
-            {
-                break;
-            }
-
-            await ScrapingAndUpdateAsync();
-        }
-    }
-
-    private async Task ScrapingAndUpdateAsync()
-    {
-        try
-        {
-            using var scope = serviceProvider.CreateScope();
-            var productService = scope.ServiceProvider.GetRequiredService<IProductService>();
-            await productService.ScrapingAndUpdateAsync();
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Failed execution job importer products.");
-        }
+        var productService = serviceProvider.GetRequiredService<IProductService>();
+        await productService.ScrapingAndUpdateAsync();
     }
 }

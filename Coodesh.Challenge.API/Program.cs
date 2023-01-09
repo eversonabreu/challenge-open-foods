@@ -1,4 +1,4 @@
-using Coodesh.Challenge.API.Jobs;
+using Coodesh.Challenge.API.IoC;
 using Coodesh.Challenge.Domain.Services.IoC;
 using Coodesh.Challenge.Infrastructure.IoC;
 
@@ -9,7 +9,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDomainServices();
 builder.Services.AddInfrastructureServices();
-builder.Services.AddHostedService<ImporterProductsJob>();
+builder.Services.AddJobs();
 
 var app = builder.Build();
 
