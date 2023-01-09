@@ -4,9 +4,9 @@ Este projeto é uma implementação do desafio proposto em:
 git@lab.coodesh.com/challenge-20220626.git  (This is a challenge by Coodesh)
 
 Para executar a aplicação é necessário apontar para uma base de dados SqlServer.
-Deve ser alterado a string de conexão do banco de dados nos arquivos:
+Deve ser alterado a string de conexão do banco de dados no arquivo:
 
-AppSettings.json e AppSettings.Development.json
+AppSettings.json
 
 Exemplo:
 
